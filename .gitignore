@@ -1,0 +1,26 @@
+# Node Dependencies
+node_modules/
+
+# Bundled Node.js binary
+node.exe
+
+# SQLite Databases & temporary files
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Environment & Secret Keys
+.env
+.env.local
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Editor & OS files
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store

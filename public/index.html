@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HospedaAI - Agente de IA para Aluguel por Temporada | Stays PMS</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="/css/custom.css">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              500: '#0ea5e9',
+              600: '#0284c7',
+              700: '#0369a1',
+              900: '#0c4a6e',
+            },
+            navy: {
+              800: '#1c2541',
+              900: '#0b132b',
+              950: '#060a17'
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
+
+  <!-- Top Academic & Project Announcement Bar -->
+  <div class="bg-gradient-to-r from-navy-950 via-slate-900 to-navy-900 text-white text-xs py-2 px-4 border-b border-slate-800 flex flex-wrap justify-between items-center gap-2">
+    <div class="flex items-center gap-2">
+      <span class="bg-brand-600/30 text-brand-300 border border-brand-500/40 px-2 py-0.5 rounded text-[11px] font-semibold tracking-wide uppercase">
+        Projetos de IA
+      </span>
+      <span class="text-slate-300 font-medium">Centro Universitário de Excelência • Sistemas de Informação</span>
+      <span class="hidden md:inline text-slate-500">|</span>
+      <span class="hidden md:inline text-slate-400">Profª Elienaide Machado</span>
+    </div>
+    <div class="flex items-center gap-3 text-slate-300">
+      <span class="hidden lg:inline text-slate-400">Equipe: Kailla Costa, Erick Dos Santos, Vinicius De Oliveira, Laysa Lima</span>
+      <div class="flex items-center gap-1.5 bg-emerald-950/60 border border-emerald-500/30 text-emerald-400 px-2.5 py-0.5 rounded-full text-[11px]">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 beacon-pulse"></span>
+        <span class="font-medium">Stays PMS Conectado</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Navbar -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <!-- Logo & Title -->
+        <div class="flex items-center gap-3 cursor-pointer" onclick="App.switchTab('dashboard')">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-500 to-blue-700 flex items-center justify-center text-white shadow-md shadow-brand-500/20">
+            <i data-lucide="bot" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="font-black text-xl tracking-tight text-slate-900">Hospeda<span class="text-brand-600">AI</span></span>
+              <span class="bg-slate-100 text-slate-600 border border-slate-200 text-[10px] font-bold px-1.5 py-0.5 rounded">v1.0</span>
+            </div>
+            <p class="text-[11px] text-slate-500 -mt-0.5">Agente de IA 24h para Aluguel por Temporada</p>
+          </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <nav class="hidden md:flex items-center gap-1">
+          <button onclick="App.switchTab('dashboard')" id="nav-dashboard" class="tab-btn px-3 py-2 rounded-lg text-sm font-semibold text-brand-600 bg-brand-50 flex items-center gap-2 transition">
+            <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard
+          </button>
+          <button onclick="App.switchTab('inbox')" id="nav-inbox" class="tab-btn px-3 py-2 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 flex items-center gap-2 transition relative">
+            <i data-lucide="message-square" class="w-4 h-4"></i> Central de Atendimento
+            <span id="nav-escalated-badge" class="hidden bg-rose-500 text-white text-[10px] font-bold px-1.5 py-0.2 rounded-full">0</span>
+          </button>
+          <button onclick="App.switchTab('properties')" id="nav-properties" class="tab-btn px-3 py-2 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 flex items-center gap-2 transition">
+            <i data-lucide="home" class="w-4 h-4"></i> Imóveis & Base
+          </button>
+          <button onclick="App.switchTab('reservations')" id="nav-reservations" class="tab-btn px-3 py-2 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 flex items-center gap-2 transition">
+            <i data-lucide="calendar" class="w-4 h-4"></i> Stays PMS
+          </button>
+          <button onclick="App.switchTab('simulator')" id="nav-simulator" class="tab-btn px-3.5 py-2 rounded-lg text-sm font-bold text-white bg-gradient-to-r from-brand-600 to-blue-600 shadow-sm shadow-brand-500/30 hover:brightness-105 flex items-center gap-2 transition">
+            <i data-lucide="sparkles" class="w-4 h-4"></i> Simulador do Hóspede
+          </button>
+          <button onclick="App.switchTab('about')" id="nav-about" class="tab-btn px-3 py-2 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 flex items-center gap-2 transition">
+            <i data-lucide="graduation-cap" class="w-4 h-4"></i> Sobre o Projeto
+          </button>
+        </nav>
+
+        <!-- Right Quick Actions -->
+        <div class="flex items-center gap-2">
+          <button onclick="App.openSettingsModal()" title="Configurações de IA" class="p-2 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition">
+            <i data-lucide="settings" class="w-5 h-5"></i>
+          </button>
+          <button onclick="App.refreshAllData()" title="Atualizar Dados" class="p-2 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition">
+            <i data-lucide="refresh-cw" class="w-5 h-5"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+    <!-- ==================== TAB 1: DASHBOARD ==================== -->
+    <section id="tab-dashboard" class="tab-content space-y-6">
+      
+      <!-- Academic & Project Banner Card -->
+      <div class="bg-gradient-to-r from-navy-900 via-slate-900 to-navy-800 text-white rounded-2xl p-6 shadow-xl relative overflow-hidden border border-slate-800">
+        <div class="absolute right-0 top-0 translate-x-8 -translate-y-8 w-64 h-64 bg-brand-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div class="space-y-1.5 max-w-2xl">
+            <div class="inline-flex items-center gap-2 bg-brand-500/20 text-brand-300 text-xs font-semibold px-2.5 py-1 rounded-full border border-brand-500/30">
+              <i data-lucide="sparkles" class="w-3.5 h-3.5 text-brand-400"></i>
+              <span>Agente Autônomo com RAG & Integração PMS</span>
+            </div>
+            <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight">HospedaAI — Central do Anfitrião</h1>
+            <p class="text-slate-300 text-sm leading-relaxed">
+              Atendimento 24h para hóspedes do Airbnb, Booking.com e Expedia conectado ao Stays PMS.
+              Responde dúvidas antes da reserva e durante a estadia, com barreira de segurança para informações sensíveis (Wi-Fi e fechadura) e transbordo humano inteligente.
+            </p>
+          </div>
+          <div class="flex flex-wrap gap-2.5">
+            <button onclick="App.switchTab('simulator')" class="bg-brand-500 hover:bg-brand-600 text-white text-sm font-semibold px-4 py-2.5 rounded-xl shadow-lg shadow-brand-500/30 flex items-center gap-2 transition">
+              <i data-lucide="play" class="w-4 h-4 fill-white"></i> Testar no Simulador
+            </button>
+            <button onclick="App.switchTab('inbox')" class="bg-white/10 hover:bg-white/15 text-white border border-white/20 text-sm font-semibold px-4 py-2.5 rounded-xl flex items-center gap-2 transition">
+              <i data-lucide="inbox" class="w-4 h-4"></i> Ver Atendimentos
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- KPI Metric Cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Metric 1 -->
+        <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex items-center justify-between">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Atendimentos Ativos</p>
+            <h3 id="stat-total-conversations" class="text-2xl font-black text-slate-900 mt-1">--</h3>
+            <p class="text-xs text-emerald-600 font-medium flex items-center gap-1 mt-1">
+              <i data-lucide="trending-up" class="w-3.5 h-3.5"></i> 100% canais monitorados
+            </p>
+          </div>
+          <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+            <i data-lucide="message-circle" class="w-6 h-6"></i>
+          </div>
+        </div>
+
+        <!-- Metric 2 -->
+        <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex items-center justify-between">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Taxa de Resolução IA</p>
+            <h3 id="stat-ai-rate" class="text-2xl font-black text-emerald-600 mt-1">--%</h3>
+            <p class="text-xs text-slate-500 font-medium flex items-center gap-1 mt-1">
+              <i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-500"></i> Resolvido sem intervenção
+            </p>
+          </div>
+          <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+            <i data-lucide="bot" class="w-6 h-6"></i>
+          </div>
+        </div>
+
+        <!-- Metric 3 -->
+        <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex items-center justify-between">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Transbordo Humano</p>
+            <h3 id="stat-escalated" class="text-2xl font-black text-rose-600 mt-1">--</h3>
+            <p class="text-xs text-rose-500 font-medium flex items-center gap-1 mt-1">
+              <i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i> Requer atenção do gestor
+            </p>
+          </div>
+          <div class="w-12 h-12 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center">
+            <i data-lucide="user-check" class="w-6 h-6"></i>
+          </div>
+        </div>
+
+        <!-- Metric 4 -->
+        <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex items-center justify-between">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Reservas no Stays PMS</p>
+            <h3 id="stat-reservations" class="text-2xl font-black text-slate-900 mt-1">--</h3>
+            <p class="text-xs text-brand-600 font-medium flex items-center gap-1 mt-1">
+              <i data-lucide="calendar" class="w-3.5 h-3.5"></i> Airbnb / Booking / Expedia
+            </p>
+          </div>
+          <div class="w-12 h-12 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center">
+            <i data-lucide="shield-check" class="w-6 h-6"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- PMS Connection & Channel Distribution -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- PMS Channels Status -->
+        <div class="bg-white rounded-xl p-6 border border-slate-200 shadow-sm space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <div class="flex items-center gap-2">
+              <div class="w-3 h-3 rounded-full bg-emerald-500 beacon-pulse"></div>
+              <h2 class="font-bold text-slate-900 text-base">Hub Stays PMS (Canais)</h2>
+            </div>
+            <span class="text-xs bg-emerald-100 text-emerald-800 font-semibold px-2 py-0.5 rounded-full">Ativo 24/7</span>
+          </div>
+          <p class="text-xs text-slate-500">
+            O HospedaAI atua conectado à API do Stays PMS, unificando os canais de venda num único ponto de inteligência.
+          </p>
+
+          <div class="space-y-3">
+            <div class="flex items-center justify-between p-3 rounded-lg bg-slate-50 border border-slate-200">
+              <div class="flex items-center gap-3">
+                <span class="w-8 h-8 rounded-lg badge-airbnb flex items-center justify-center text-xs font-bold">AB</span>
+                <div>
+                  <h4 class="font-bold text-xs text-slate-900">Airbnb</h4>
+                  <p class="text-[11px] text-slate-500">Mensagens e reservas em tempo real</p>
+                </div>
+              </div>
+              <span class="text-xs font-semibold text-emerald-600 flex items-center gap-1">
+                <i data-lucide="check" class="w-3.5 h-3.5"></i> Conectado
+              </span>
+            </div>
+
+            <div class="flex items-center justify-between p-3 rounded-lg bg-slate-50 border border-slate-200">
+              <div class="flex items-center gap-3">
+                <span class="w-8 h-8 rounded-lg badge-booking flex items-center justify-center text-xs font-bold">BK</span>
+                <div>
+                  <h4 class="font-bold text-xs text-slate-900">Booking.com</h4>
+                  <p class="text-[11px] text-slate-500">Mensagens de hóspedes sincronizadas</p>
+                </div>
+              </div>
+              <span class="text-xs font-semibold text-emerald-600 flex items-center gap-1">
+                <i data-lucide="check" class="w-3.5 h-3.5"></i> Conectado
+              </span>
+            </div>
+
+            <div class="flex items-center justify-between p-3 rounded-lg bg-slate-50 border border-slate-200">
+              <div class="flex items-center gap-3">
+                <span class="w-8 h-8 rounded-lg badge-expedia flex items-center justify-center text-xs font-bold text-slate-900">EX</span>
+                <div>
+                  <h4 class="font-bold text-xs text-slate-900">Expedia Group</h4>
+                  <p class="text-[11px] text-slate-500">VRBO & Expedia Partner Central</p>
+                </div>
+              </div>
+              <span class="text-xs font-semibold text-emerald-600 flex items-center gap-1">
+                <i data-lucide="check" class="w-3.5 h-3.5"></i> Conectado
+              </span>
+            </div>
+
+            <div class="flex items-center justify-between p-3 rounded-lg bg-slate-50 border border-slate-200">
+              <div class="flex items-center gap-3">
+                <span class="w-8 h-8 rounded-lg badge-direct flex items-center justify-center text-xs font-bold">WA</span>
+                <div>
+                  <h4 class="font-bold text-xs text-slate-900">WhatsApp / Site Direto</h4>
+                  <p class="text-[11px] text-slate-500">Atendimento omnichannel direto</p>
+                </div>
+              </div>
+              <span class="text-xs font-semibold text-emerald-600 flex items-center gap-1">
+                <i data-lucide="check" class="w-3.5 h-3.5"></i> Conectado
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Live Inquiries & Escalation Alerts -->
+        <div class="lg:col-span-2 bg-white rounded-xl p-6 border border-slate-200 shadow-sm space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <div>
+              <h2 class="font-bold text-slate-900 text-base">Atendimentos Recentes & Alertas</h2>
+              <p class="text-xs text-slate-500">Monitoramento contínuo das conversas nos imóveis</p>
+            </div>
+            <button onclick="App.switchTab('inbox')" class="text-xs font-bold text-brand-600 hover:text-brand-700 flex items-center gap-1">
+              Ver Central Completa <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+
+          <div id="dashboard-recent-convs" class="divide-y divide-slate-100">
+            <!-- Populated via JS -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 2: CENTRAL DE MENSAGENS / INBOX ==================== -->
+    <section id="tab-inbox" class="tab-content hidden space-y-4">
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden h-[780px] grid grid-cols-1 md:grid-cols-12">
+        
+        <!-- Left: Conversations List -->
+        <div class="md:col-span-4 border-r border-slate-200 flex flex-col h-full min-h-0 overflow-hidden bg-slate-50/50">
+          <!-- Filters & Search -->
+          <div class="p-3.5 border-b border-slate-200 space-y-2.5 bg-white shrink-0">
+            <div class="flex items-center justify-between">
+              <h3 class="font-bold text-slate-900 text-sm flex items-center gap-1.5">
+                <i data-lucide="message-square" class="w-4 h-4 text-brand-600"></i> Central Unificada
+              </h3>
+              <span id="inbox-filter-count" class="text-xs font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">3 conversas</span>
+            </div>
+
+            <!-- Status Tabs Filter -->
+            <div class="flex p-0.5 bg-slate-100 rounded-lg text-xs font-medium text-slate-600">
+              <button onclick="App.setInboxFilter('all')" id="filter-btn-all" class="flex-1 py-1.5 rounded-md bg-white font-bold text-slate-900 shadow-sm transition">Todas</button>
+              <button onclick="App.setInboxFilter('ai_active')" id="filter-btn-ai_active" class="flex-1 py-1.5 rounded-md hover:text-slate-900 transition">🤖 IA</button>
+              <button onclick="App.setInboxFilter('human_escalated')" id="filter-btn-human_escalated" class="flex-1 py-1.5 rounded-md hover:text-slate-900 transition text-rose-600 font-bold">🚨 Alerta</button>
+              <button onclick="App.setInboxFilter('closed')" id="filter-btn-closed" class="flex-1 py-1.5 rounded-md hover:text-slate-900 transition">Finalizadas</button>
+            </div>
+          </div>
+
+          <!-- Conversations Scroll List -->
+          <div id="inbox-conversations-list" class="flex-1 min-h-0 overflow-y-auto divide-y divide-slate-100">
+            <!-- Populated via JS -->
+          </div>
+        </div>
+
+        <!-- Middle: Chat Area -->
+        <div class="md:col-span-5 flex flex-col h-full min-h-0 overflow-hidden bg-white border-r border-slate-200">
+          <!-- Chat Header -->
+          <div id="chat-header" class="p-4 border-b border-slate-200 flex items-center justify-between bg-white z-10 shrink-0">
+            <div class="flex items-center gap-3">
+              <div id="chat-avatar" class="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center font-bold text-slate-700 text-sm">
+                ?
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h4 id="chat-guest-name" class="font-bold text-slate-900 text-sm">Selecione uma conversa</h4>
+                  <span id="chat-channel-badge" class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-700">Canal</span>
+                </div>
+                <p id="chat-prop-name" class="text-xs text-slate-500">Imóvel</p>
+              </div>
+            </div>
+
+            <!-- Action Buttons for Host -->
+            <div id="chat-actions" class="flex items-center gap-1.5">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+
+          <!-- Messages Scroll Area -->
+          <div id="chat-messages-container" class="flex-1 min-h-0 overflow-y-auto p-4 space-y-3 bg-slate-50/70">
+            <div class="text-center text-xs text-slate-400 py-12">
+              Selecione uma conversa na lista lateral para visualizar o histórico de atendimento.
+            </div>
+          </div>
+
+          <!-- Host Message Input Bar -->
+          <div id="chat-input-area" class="p-3 border-t border-slate-200 bg-white shrink-0">
+            <form onsubmit="App.handleHostSend(event)" class="flex items-center gap-2">
+              <input type="text" id="host-msg-input" placeholder="Digite uma mensagem como gestor..." class="flex-1 text-sm bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-white transition" />
+              <button type="submit" class="bg-brand-600 hover:bg-brand-700 text-white font-medium px-4 py-2.5 rounded-xl text-sm flex items-center gap-1.5 transition shadow-sm">
+                <i data-lucide="send" class="w-4 h-4"></i> Enviar
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Right: AI Reasoning & Property Inspector -->
+        <div class="md:col-span-3 flex flex-col h-full min-h-0 bg-slate-50 overflow-y-auto p-4 space-y-4">
+          <div class="border-b border-slate-200 pb-2">
+            <h3 class="font-bold text-xs uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+              <i data-lucide="cpu" class="w-4 h-4 text-brand-600"></i> Auditoria da IA & Segurança
+            </h3>
+          </div>
+
+          <div id="inspector-content" class="space-y-4 text-xs">
+            <div class="bg-white p-3.5 rounded-xl border border-slate-200 space-y-2">
+              <p class="font-bold text-slate-800">Status no PMS Stays</p>
+              <div id="inspect-stays-status" class="text-slate-600">Nenhum hóspede selecionado.</div>
+            </div>
+
+            <div class="bg-white p-3.5 rounded-xl border border-slate-200 space-y-2">
+              <p class="font-bold text-slate-800">Barreira de Segurança (Wi-Fi / Acesso)</p>
+              <div id="inspect-security-status" class="text-slate-600">Aguardando mensagem.</div>
+            </div>
+
+            <div class="bg-white p-3.5 rounded-xl border border-slate-200 space-y-2">
+              <p class="font-bold text-slate-800">Gatilho de Transbordo Humano</p>
+              <div id="inspect-escalation-status" class="text-slate-600">Sem emergência detectada.</div>
+            </div>
+
+            <div class="bg-white p-3.5 rounded-xl border border-slate-200 space-y-2">
+              <p class="font-bold text-slate-800">Base de Conhecimento RAG Injetada</p>
+              <div id="inspect-kb-summary" class="text-slate-600">Informações do imóvel carregadas dinamicamente.</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ==================== TAB 3: IMÓVEIS & BASE DE CONHECIMENTO ==================== -->
+    <section id="tab-properties" class="tab-content hidden space-y-6">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h2 class="text-xl font-bold text-slate-900">Imóveis & Bases de Conhecimento</h2>
+          <p class="text-xs text-slate-500">Cadastre comodidades, regras, instruções de entrada e credenciais protegidas para cada imóvel</p>
+        </div>
+        <button onclick="App.openPropertyModal()" class="bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm flex items-center gap-1.5 transition">
+          <i data-lucide="plus" class="w-4 h-4"></i> Cadastrar Novo Imóvel
+        </button>
+      </div>
+
+      <!-- Properties Grid -->
+      <div id="properties-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Rendered via JS -->
+      </div>
+    </section>
+
+    <!-- ==================== TAB 4: RESERVAS NO STAYS PMS ==================== -->
+    <section id="tab-reservations" class="tab-content hidden space-y-6">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h2 class="text-xl font-bold text-slate-900">Reservas Sincronizadas (Stays PMS)</h2>
+          <p class="text-xs text-slate-500">Central de reservas unificada de Airbnb, Booking.com, Expedia e reservas diretas</p>
+        </div>
+        <button onclick="App.openReservationModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm flex items-center gap-1.5 transition">
+          <i data-lucide="calendar-plus" class="w-4 h-4"></i> Simular Nova Reserva no PMS
+        </button>
+      </div>
+
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider">
+              <tr>
+                <th class="p-3.5">Código Stays</th>
+                <th class="p-3.5">Hóspede</th>
+                <th class="p-3.5">Plataforma</th>
+                <th class="p-3.5">Imóvel</th>
+                <th class="p-3.5">Período</th>
+                <th class="p-3.5">Hóspedes</th>
+                <th class="p-3.5">Status</th>
+                <th class="p-3.5 text-right">Valor Total</th>
+              </tr>
+            </thead>
+            <tbody id="reservations-table-body" class="divide-y divide-slate-100">
+              <!-- Rendered via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 5: SIMULADOR DO HÓSPEDE ==================== -->
+    <section id="tab-simulator" class="tab-content hidden space-y-6">
+      <div class="bg-gradient-to-r from-slate-900 to-navy-900 text-white p-6 rounded-2xl border border-slate-800 shadow-md">
+        <div class="max-w-3xl space-y-1">
+          <h2 class="text-xl font-bold flex items-center gap-2">
+            <i data-lucide="sparkles" class="w-5 h-5 text-brand-400"></i> Simulador Interativo de Atendimento
+          </h2>
+          <p class="text-xs text-slate-300">
+            Teste como o HospedaAI atende os hóspedes em tempo real. Alterne entre os perfis abaixo para testar a barreira de segurança para interessados vs hóspedes confirmados e o gatilho de transbordo humano!
+          </p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        
+        <!-- Preset Personas & Controls (Left) -->
+        <div class="lg:col-span-5 space-y-4">
+          <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm space-y-4">
+            <h3 class="font-bold text-slate-900 text-sm flex items-center gap-1.5">
+              <i data-lucide="sliders" class="w-4 h-4 text-brand-600"></i> Selecione um Cenário de Teste:
+            </h3>
+
+            <!-- Persona 1: Interessado (Pre-booking) -->
+            <button onclick="App.loadSimulatorPersona('interessado')" class="w-full text-left p-3.5 rounded-xl border border-amber-200 bg-amber-50/60 hover:bg-amber-100/60 transition group space-y-1">
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-xs text-amber-900 flex items-center gap-1.5">
+                  👤 Carlos Silva
+                  <span class="bg-amber-200 text-amber-900 text-[10px] px-1.5 py-0.2 rounded font-semibold">Interessado / Lead</span>
+                </span>
+                <span class="text-[11px] text-amber-700 font-medium">Booking.com</span>
+              </div>
+              <p class="text-xs text-amber-800">
+                Pergunta sobre estacionamento, enxoval e tenta pedir a senha do Wi-Fi.
+              </p>
+              <div class="text-[10px] text-amber-600 font-semibold flex items-center gap-1 pt-1">
+                <i data-lucide="shield" class="w-3 h-3"></i> Testa: Bloqueio Seguro de Wi-Fi e Fechadura
+              </div>
+            </button>
+
+            <!-- Persona 2: Hóspede Confirmado (In-House) -->
+            <button onclick="App.loadSimulatorPersona('hospedado')" class="w-full text-left p-3.5 rounded-xl border border-emerald-200 bg-emerald-50/60 hover:bg-emerald-100/60 transition group space-y-1">
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-xs text-emerald-900 flex items-center gap-1.5">
+                  🏠 Mariana Costa
+                  <span class="bg-emerald-200 text-emerald-900 text-[10px] px-1.5 py-0.2 rounded font-semibold">Reserva Confirmada</span>
+                </span>
+                <span class="text-[11px] text-emerald-700 font-medium">Airbnb (#STY-8821)</span>
+              </div>
+              <p class="text-xs text-emerald-800">
+                Hospedada hoje no Apt Vista Mar Copacabana. Solicita senha do Wi-Fi e como entrar.
+              </p>
+              <div class="text-[10px] text-emerald-600 font-semibold flex items-center gap-1 pt-1">
+                <i data-lucide="check-circle" class="w-3 h-3"></i> Testa: Liberação autorizada pelo PMS
+              </div>
+            </button>
+
+            <!-- Persona 3: Reclamação / Emergência -->
+            <button onclick="App.loadSimulatorPersona('emergencia')" class="w-full text-left p-3.5 rounded-xl border border-rose-200 bg-rose-50/60 hover:bg-rose-100/60 transition group space-y-1">
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-xs text-rose-900 flex items-center gap-1.5">
+                  🚨 Roberto Souza
+                  <span class="bg-rose-200 text-rose-900 text-[10px] px-1.5 py-0.2 rounded font-semibold">Emergência / Manutenção</span>
+                </span>
+                <span class="text-[11px] text-rose-700 font-medium">Expedia (#STY-3390)</span>
+              </div>
+              <p class="text-xs text-rose-800">
+                Avisa que o chuveiro quebrou e está vazando água pelo chão do banheiro!
+              </p>
+              <div class="text-[10px] text-rose-600 font-semibold flex items-center gap-1 pt-1">
+                <i data-lucide="alert-triangle" class="w-3 h-3"></i> Testa: Transbordo Humano com Alerta Crítico
+              </div>
+            </button>
+
+            <div class="pt-2 border-t border-slate-100 space-y-3">
+              <p class="font-bold text-xs text-slate-700">Ou personalize o teste:</p>
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-500 mb-1">Imóvel Consultado:</label>
+                <select id="sim-property-select" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-lg p-2 font-medium">
+                  <!-- Populated via JS -->
+                </select>
+              </div>
+
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="block text-[11px] font-semibold text-slate-500 mb-1">Canal:</label>
+                  <select id="sim-platform-select" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-lg p-2 font-medium">
+                    <option value="Airbnb">Airbnb</option>
+                    <option value="Booking.com">Booking.com</option>
+                    <option value="Expedia">Expedia</option>
+                    <option value="WhatsApp">WhatsApp</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-[11px] font-semibold text-slate-500 mb-1">Status no PMS:</label>
+                  <select id="sim-type-select" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-lg p-2 font-medium">
+                    <option value="interessado">Interessado (Sem Reserva)</option>
+                    <option value="hospedado">Hóspede Confirmado</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-500 mb-1">Nome do Hóspede:</label>
+                <input type="text" id="sim-guest-name" value="Carlos Silva" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-lg p-2 font-medium" />
+              </div>
+            </div>
+
+            <!-- Quick Questions Pills -->
+            <div class="space-y-1.5 pt-2 border-t border-slate-100">
+              <label class="block text-[11px] font-semibold text-slate-500">Perguntas Rápidas:</label>
+              <div class="flex flex-wrap gap-1.5">
+                <button onclick="App.setQuickPrompt('Qual é a senha do Wi-Fi?')" class="text-[11px] bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-1 rounded transition">
+                  📶 Qual a senha do Wi-Fi?
+                </button>
+                <button onclick="App.setQuickPrompt('Tem vaga de garagem inclusa?')" class="text-[11px] bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-1 rounded transition">
+                  🚗 Tem garagem?
+                </button>
+                <button onclick="App.setQuickPrompt('Tem roupa de cama e toalhas?')" class="text-[11px] bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-1 rounded transition">
+                  🛏️ Tem roupa de cama?
+                </button>
+                <button onclick="App.setQuickPrompt('O chuveiro quebrou e está vazando água!')" class="text-[11px] bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 px-2 py-1 rounded transition">
+                  🚨 Vazamento no chuveiro!
+                </button>
+                <button onclick="App.setQuickPrompt('Quais restaurantes você indica por perto?')" class="text-[11px] bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-1 rounded transition">
+                  📍 Dicas de restaurantes
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Interactive Smartphone Frame (Right) -->
+        <div class="lg:col-span-7 flex justify-center">
+          <div class="w-full max-w-md bg-slate-900 rounded-[38px] p-3 shadow-2xl border-4 border-slate-800">
+            <!-- Screen -->
+            <div class="bg-slate-100 rounded-[30px] overflow-hidden flex flex-col h-[650px] relative">
+              
+              <!-- Phone Status Bar -->
+              <div class="bg-slate-900 text-white text-[10px] px-6 py-1.5 flex justify-between items-center select-none">
+                <span class="font-bold">20:15</span>
+                <div class="w-24 h-4 bg-slate-800 rounded-full mx-auto"></div>
+                <div class="flex items-center gap-1.5">
+                  <i data-lucide="wifi" class="w-3 h-3"></i>
+                  <i data-lucide="battery" class="w-3.5 h-3.5"></i>
+                </div>
+              </div>
+
+              <!-- Channel Chat Header -->
+              <div id="sim-chat-header" class="bg-white border-b border-slate-200 p-3 flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                  <div class="w-8 h-8 rounded-full bg-gradient-to-br from-brand-500 to-blue-600 flex items-center justify-center text-white">
+                    <i data-lucide="bot" class="w-4 h-4"></i>
+                  </div>
+                  <div>
+                    <h4 class="font-bold text-slate-900 text-xs flex items-center gap-1.5">
+                      <span>HospedaAI</span>
+                      <span id="sim-channel-badge" class="badge-booking text-[9px] px-1.5 py-0.2 rounded font-bold">Booking</span>
+                    </h4>
+                    <p id="sim-header-subtitle" class="text-[10px] text-emerald-600 font-semibold flex items-center gap-1">
+                      <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 beacon-pulse"></span> Anfitrião Online 24h
+                    </p>
+                  </div>
+                </div>
+
+                <div id="sim-badge-role" class="text-[10px] bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded-full">
+                  Interessado
+                </div>
+              </div>
+
+              <!-- Simulator Message Flow -->
+              <div id="sim-messages-flow" class="flex-1 overflow-y-auto p-3.5 space-y-3 bg-[#e5ddd5]/30">
+                <!-- Messages rendered via JS -->
+              </div>
+
+              <!-- Simulator Input Bar -->
+              <div class="bg-white p-2.5 border-t border-slate-200">
+                <form onsubmit="App.handleSimulatorSend(event)" class="flex items-center gap-2">
+                  <input type="text" id="sim-input-text" placeholder="Digite sua dúvida ou mensagem..." class="flex-1 text-xs bg-slate-100 border border-slate-200 rounded-full px-3.5 py-2 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-white" />
+                  <button type="submit" id="sim-send-btn" class="w-8 h-8 rounded-full bg-brand-600 hover:bg-brand-700 text-white flex items-center justify-center transition shadow">
+                    <i data-lucide="send" class="w-3.5 h-3.5"></i>
+                  </button>
+                </form>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ==================== TAB 6: SOBRE O PROJETO & FICHA ACADÊMICA ==================== -->
+    <section id="tab-about" class="tab-content hidden space-y-6">
+      <div class="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm space-y-8">
+        
+        <!-- Header -->
+        <div class="border-b border-slate-200 pb-6 text-center sm:text-left flex flex-col sm:flex-row justify-between items-center gap-4">
+          <div>
+            <span class="bg-brand-100 text-brand-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+              Registro Inicial do Projeto
+            </span>
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-2">HospedaAI</h1>
+            <p class="text-sm text-slate-500">Agente de IA Generativa para Aluguel por Temporada integrado ao Stays PMS</p>
+          </div>
+          <div class="text-right">
+            <p class="font-bold text-slate-900 text-sm">Centro Universitário de Excelência</p>
+            <p class="text-xs text-slate-500">Sistemas de Informação • Disciplina de Projetos de IA</p>
+            <p class="text-xs font-semibold text-brand-600 mt-1">Professora: Elienaide Machado</p>
+          </div>
+        </div>
+
+        <!-- Equipe -->
+        <div class="space-y-3">
+          <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+            <i data-lucide="users" class="w-5 h-5 text-brand-600"></i> Integrantes da Equipe
+          </h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+              <p class="font-bold text-slate-800 text-sm">Kailla Costa</p>
+              <p class="text-xs text-slate-500">Sistemas de Informação</p>
+            </div>
+            <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+              <p class="font-bold text-slate-800 text-sm">Erick Dos Santos</p>
+              <p class="text-xs text-slate-500">Sistemas de Informação</p>
+            </div>
+            <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+              <p class="font-bold text-slate-800 text-sm">Vinicius De Oliveira</p>
+              <p class="text-xs text-slate-500">Sistemas de Informação</p>
+            </div>
+            <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+              <p class="font-bold text-slate-800 text-sm">Laysa Lima</p>
+              <p class="text-xs text-slate-500">Sistemas de Informação</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Problema e Solução -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="p-5 rounded-xl bg-rose-50/50 border border-rose-200/60 space-y-2">
+            <h4 class="font-bold text-sm text-rose-950 flex items-center gap-2">
+              <i data-lucide="alert-circle" class="w-4 h-4 text-rose-600"></i> Problema / Necessidade
+            </h4>
+            <p class="text-xs text-rose-900 leading-relaxed">
+              Quem trabalha com aluguel por temporada recebe o tempo todo as mesmas perguntas dos hóspedes. Antes de reservar: roupa de cama, garagem, cozinha equipada. Depois que está hospedada: senha do Wi-Fi, horário do check-out. Plataformas como Airbnb, Booking e Expedia até têm automações simples, mas nenhuma delas tem um agente de IA que converse de verdade. Gestores respondem tudo manualmente a qualquer hora, perdendo reservas por demora ou recebendo avaliações ruins.
+            </p>
+          </div>
+
+          <div class="p-5 rounded-xl bg-emerald-50/50 border border-emerald-200/60 space-y-2">
+            <h4 class="font-bold text-sm text-emerald-950 flex items-center gap-2">
+              <i data-lucide="check-circle" class="w-4 h-4 text-emerald-600"></i> Solução Proposta
+            </h4>
+            <p class="text-xs text-emerald-900 leading-relaxed">
+              Conectar um agente de IA generativa ao PMS da Stays (que já reúne mensagens do Airbnb, Booking, Expedia e canais diretos). O gestor cadastra comodidades, regras, instruções de check-in/out, senha do Wi-Fi e dicas da região. O agente responde 24h em linguagem natural. Como o PMS indica quem tem reserva confirmada, o agente só fornece informações sensíveis (Wi-Fi e fechadura) para quem realmente está hospedado. Casos complexos ou reclamações são imediatamente transbordados ao gestor.
+            </p>
+          </div>
+        </div>
+
+        <!-- Componentes Principais -->
+        <div class="space-y-4">
+          <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+            <i data-lucide="layers" class="w-5 h-5 text-brand-600"></i> Componentes Principais Implementados
+          </h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div class="p-4 rounded-xl border border-slate-200 space-y-1">
+              <span class="text-xs font-bold text-brand-600">1. Agente de IA Generativa</span>
+              <p class="text-xs text-slate-600">Atendimento 24h em linguagem natural com suporte ao Google Gemini e motor local RAG.</p>
+            </div>
+            <div class="p-4 rounded-xl border border-slate-200 space-y-1">
+              <span class="text-xs font-bold text-brand-600">2. Integração Stays PMS</span>
+              <p class="text-xs text-slate-600">Conexão central unificada que sincroniza Airbnb, Booking.com e Expedia sem redundância.</p>
+            </div>
+            <div class="p-4 rounded-xl border border-slate-200 space-y-1">
+              <span class="text-xs font-bold text-brand-600">3. Base de Conhecimento RAG</span>
+              <p class="text-xs text-slate-600">Armazena regras, enxoval, garagens, horários de check-in/out e dicas locais por imóvel.</p>
+            </div>
+            <div class="p-4 rounded-xl border border-slate-200 space-y-1">
+              <span class="text-xs font-bold text-brand-600">4. Barreira de Segurança</span>
+              <p class="text-xs text-slate-600">Separação estrita: Interessado (Lead) vs Hóspede Confirmado. Senhas e fechaduras 100% blindadas.</p>
+            </div>
+            <div class="p-4 rounded-xl border border-slate-200 space-y-1">
+              <span class="text-xs font-bold text-brand-600">5. Painel Web do Gestor</span>
+              <p class="text-xs text-slate-600">Dashboard em tempo real com métricas, gestão de imóveis, histórico e intervenção humana.</p>
+            </div>
+            <div class="p-4 rounded-xl border border-slate-200 space-y-1">
+              <span class="text-xs font-bold text-brand-600">6. Transbordo Humano</span>
+              <p class="text-xs text-slate-600">Detecção automática de quebras, vazamentos, cancelamentos e urgências com notificação imediata.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==================== MODALS ==================== -->
+
+  <!-- Modal: Property Knowledge Base Editor -->
+  <div id="modal-property" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+      <div class="p-5 border-b border-slate-200 flex justify-between items-center bg-slate-50">
+        <div>
+          <h3 id="modal-prop-title" class="font-bold text-slate-900 text-base">Editar Imóvel & Base de Conhecimento</h3>
+          <p class="text-xs text-slate-500">Configure as informações que alimentam as respostas da IA</p>
+        </div>
+        <button onclick="App.closePropertyModal()" class="text-slate-400 hover:text-slate-600 p-1">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form id="form-property" onsubmit="App.handleSaveProperty(event)" class="flex-1 overflow-y-auto p-5 space-y-4">
+        <input type="hidden" id="prop-id" />
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Nome do Imóvel *</label>
+            <input type="text" id="prop-name" required class="w-full text-xs border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-brand-500" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Código Stays PMS *</label>
+            <input type="text" id="prop-code" required class="w-full text-xs border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-brand-500" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Cidade *</label>
+            <input type="text" id="prop-city" required class="w-full text-xs border border-slate-300 rounded-lg p-2" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Estado *</label>
+            <input type="text" id="prop-state" required class="w-full text-xs border border-slate-300 rounded-lg p-2" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Tipo *</label>
+            <select id="prop-type" class="w-full text-xs border border-slate-300 rounded-lg p-2">
+              <option value="Apartamento">Apartamento</option>
+              <option value="Casa">Casa</option>
+              <option value="Chalé">Chalé</option>
+              <option value="Studio">Studio</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Quartos</label>
+            <input type="number" id="prop-bedrooms" min="1" class="w-full text-xs border border-slate-300 rounded-lg p-2" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Banheiros</label>
+            <input type="number" id="prop-bathrooms" min="1" class="w-full text-xs border border-slate-300 rounded-lg p-2" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Capacidade Máxima</label>
+            <input type="number" id="prop-max-guests" min="1" class="w-full text-xs border border-slate-300 rounded-lg p-2" />
+          </div>
+        </div>
+
+        <!-- Horários -->
+        <div class="grid grid-cols-3 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Horário Check-in</label>
+            <input type="text" id="prop-checkin-time" value="15:00" class="w-full text-xs border border-slate-300 rounded-lg p-2" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Horário Check-out</label>
+            <input type="text" id="prop-checkout-time" value="11:00" class="w-full text-xs border border-slate-300 rounded-lg p-2" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Horário de Silêncio</label>
+            <input type="text" id="prop-quiet-hours" value="22:00 às 08:00" class="w-full text-xs border border-slate-300 rounded-lg p-2" />
+          </div>
+        </div>
+
+        <!-- Dados Sensíveis Protegidos -->
+        <div class="p-3.5 rounded-xl bg-amber-50/70 border border-amber-200 space-y-3">
+          <div class="flex items-center gap-1.5">
+            <i data-lucide="shield-alert" class="w-4 h-4 text-amber-700"></i>
+            <h4 class="font-bold text-xs text-amber-900">Informações Sensíveis (Liberadas SOMENTE para Hóspedes Confirmados)</h4>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label class="block text-[11px] font-semibold text-amber-900 mb-1">Rede Wi-Fi (SSID)</label>
+              <input type="text" id="prop-wifi-ssid" class="w-full text-xs border border-amber-300 bg-white rounded-lg p-2" />
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-amber-900 mb-1">Senha do Wi-Fi</label>
+              <input type="text" id="prop-wifi-password" class="w-full text-xs border border-amber-300 bg-white rounded-lg p-2 font-mono" />
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-amber-900 mb-1">Código Fechadura/Porta</label>
+              <input type="text" id="prop-door-code" class="w-full text-xs border border-amber-300 bg-white rounded-lg p-2 font-mono" />
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Comodidades (separadas por ponto e vírgula ;)</label>
+          <textarea id="prop-amenities" rows="2" class="w-full text-xs border border-slate-300 rounded-lg p-2" placeholder="Wi-Fi Fibra 500 Mbps; Roupa de cama e banho inclusa; Ar-condicionado; Garagem coberta"></textarea>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Regras da Casa (separadas por ponto e vírgula ;)</label>
+          <textarea id="prop-rules" rows="2" class="w-full text-xs border border-slate-300 rounded-lg p-2" placeholder="Proibido fumar; Não permite festas; Animais aceitos até 10kg"></textarea>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Instruções de Check-in</label>
+          <textarea id="prop-checkin-inst" rows="2" class="w-full text-xs border border-slate-300 rounded-lg p-2"></textarea>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Instruções de Check-out</label>
+          <textarea id="prop-checkout-inst" rows="2" class="w-full text-xs border border-slate-300 rounded-lg p-2"></textarea>
+        </div>
+
+        <div class="pt-3 border-t border-slate-200 flex justify-end gap-2">
+          <button type="button" onclick="App.closePropertyModal()" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100">Cancelar</button>
+          <button type="submit" class="px-4 py-2 rounded-xl text-xs font-bold text-white bg-brand-600 hover:bg-brand-700 shadow-sm">Salvar Imóvel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Nova Reserva no Stays PMS -->
+  <div id="modal-reservation" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl overflow-hidden">
+      <div class="p-5 border-b border-slate-200 flex justify-between items-center bg-slate-50">
+        <div>
+          <h3 class="font-bold text-slate-900 text-base">Nova Reserva no Stays PMS</h3>
+          <p class="text-xs text-slate-500">Cadastre uma reserva para testar a IA como hóspede confirmado</p>
+        </div>
+        <button onclick="App.closeReservationModal()" class="text-slate-400 hover:text-slate-600 p-1">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form onsubmit="App.handleSaveReservation(event)" class="p-5 space-y-3">
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Nome Completo do Hóspede *</label>
+          <input type="text" id="res-guest-name" required placeholder="Ex: Fernanda Lima" class="w-full text-xs border border-slate-300 rounded-lg p-2" />
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Imóvel *</label>
+          <select id="res-property-id" required class="w-full text-xs border border-slate-300 rounded-lg p-2">
+            <!-- Populated via JS -->
+          </select>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Canal de Origem</label>
+            <select id="res-platform" class="w-full text-xs border border-slate-300 rounded-lg p-2">
+              <option value="Airbnb">Airbnb</option>
+              <option value="Booking.com">Booking.com</option>
+              <option value="Expedia">Expedia</option>
+              <option value="Direct">Direto / WhatsApp</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Status</label>
+            <select id="res-status" class="w-full text-xs border border-slate-300 rounded-lg p-2">
+              <option value="confirmed">Confirmada</option>
+              <option value="checked_in">Checked-In (No Imóvel)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Check-in</label>
+            <input type="date" id="res-checkin" required class="w-full text-xs border border-slate-300 rounded-lg p-2" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Check-out</label>
+            <input type="date" id="res-checkout" required class="w-full text-xs border border-slate-300 rounded-lg p-2" />
+          </div>
+        </div>
+
+        <div class="pt-3 border-t border-slate-200 flex justify-end gap-2">
+          <button type="button" onclick="App.closeReservationModal()" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100">Cancelar</button>
+          <button type="submit" class="px-4 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 shadow-sm">Criar no PMS</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Settings (Configurações de IA) -->
+  <div id="modal-settings" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl overflow-hidden">
+      <div class="p-5 border-b border-slate-200 flex justify-between items-center bg-slate-50">
+        <div>
+          <h3 class="font-bold text-slate-900 text-base">Configurações do HospedaAI</h3>
+          <p class="text-xs text-slate-500">Parâmetros do agente de IA e modelo de linguagem</p>
+        </div>
+        <button onclick="App.closeSettingsModal()" class="text-slate-400 hover:text-slate-600 p-1">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form onsubmit="App.handleSaveSettings(event)" class="p-5 space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Motor de Inteligência Artificial</label>
+          <select id="setting-ai-provider" class="w-full text-xs border border-slate-300 rounded-lg p-2 font-medium">
+            <option value="hybrid_intelligent">Motor RAG Integrado (Recomendado / Offline)</option>
+            <option value="gemini">Google Gemini 1.5 Flash (Requer Chave)</option>
+          </select>
+          <p class="text-[11px] text-slate-500 mt-1">O motor integrado funciona 100% offline com alta precisão sem depender de APIs externas.</p>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Chave de API do Google Gemini (Opcional)</label>
+          <input type="password" id="setting-gemini-key" placeholder="AIzaSy..." class="w-full text-xs border border-slate-300 rounded-lg p-2 font-mono" />
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Tom de Voz do Atendimento</label>
+          <select id="setting-tone" class="w-full text-xs border border-slate-300 rounded-lg p-2 font-medium">
+            <option value="cordial_profissional">Cordial & Acolhedor (Padrão Aluguel de Temporada)</option>
+            <option value="formal_executivo">Executivo & Formal</option>
+            <option value="descontraido">Moderno & Descontraído</option>
+          </select>
+        </div>
+
+        <div class="pt-3 border-t border-slate-200 flex justify-end gap-2">
+          <button type="button" onclick="App.closeSettingsModal()" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100">Fechar</button>
+          <button type="submit" class="px-4 py-2 rounded-xl text-xs font-bold text-white bg-brand-600 hover:bg-brand-700 shadow-sm">Salvar Preferências</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-16 opacity-0 transition-all duration-300 pointer-events-none">
+    <div class="bg-slate-900 text-white text-xs font-semibold px-4 py-3 rounded-xl shadow-xl flex items-center gap-2 border border-slate-800">
+      <i id="toast-icon" data-lucide="check-circle" class="w-4 h-4 text-emerald-400"></i>
+      <span id="toast-message">Notificação</span>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/app.js"></script>
+</body>
+</html>
+
